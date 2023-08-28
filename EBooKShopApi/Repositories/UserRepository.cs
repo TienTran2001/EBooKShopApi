@@ -37,7 +37,8 @@ namespace EBooKShopApi.Repositories
                     Email = u.Email,
                     Phone = u.Phone,
                     FullName = u.FullName,
-                    Role = null
+                    Address = u.Address,
+                    Role = ""
                 })
                 .FirstOrDefaultAsync();
             return user;
