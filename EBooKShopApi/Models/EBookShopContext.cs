@@ -10,5 +10,6 @@ namespace EBooKShopApi.Models
         }
 
         public DbSet<User> Users { get; set; }
+        public DbSet<Category> Categories{ get; set; }
     }
 }
