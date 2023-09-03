@@ -23,7 +23,7 @@ namespace EBooKShopApi.Models
 
         [Required]
         [Column("price")]
-        public float Price { get; set; } = 0;
+        public double Price { get; set; } = 0;
 
         [Required]
         [Column("quantity")]
