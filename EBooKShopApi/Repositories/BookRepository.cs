@@ -22,5 +22,24 @@ namespace EBooKShopApi.Repositories
             .ToListAsync();
             
         }
+
+        // ham lay detail book 
+        public async Task<Book?> GetBookByIdAsync(int id)
+        {
+            return await _context.Books
+                .Include(b => b.Author)
+                .Include(b => b.Category)
+                .FirstOrDefaultAsync(b => b.BookId == id);     
+        }
+
+        // ham lay sach theo categogy
+        public async Task<List<Book>> GetBooksByCategoryAsync(int categoryId)
+        {
+            return await _context.Books
+                .Include(b => b.Author)
+                .Include(b => b.Category)
+                .Where(b => b.CategoryId == categoryId)
+                .ToListAsync();
+        }
     }
 }
