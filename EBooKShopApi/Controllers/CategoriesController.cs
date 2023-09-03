@@ -36,7 +36,6 @@ namespace EBooKShopApi.Controllers
 
         [HttpGet]
         [Route("{id:int}")]
-        [Authorize(Roles = "user")]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
             try

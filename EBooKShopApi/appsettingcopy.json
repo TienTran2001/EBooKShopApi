@@ -1,0 +1,15 @@
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*",
+  "ConnectionStrings": {
+    "DefaultConnection": "Data Source=DESKTOP-1K59A1B\\SQLEXPRESS;Database=EBookShop;TrustServerCertificate=true;Trusted_Connection=true;"
+  },
+  "Jwt": {
+    "SecretKey": "Nhân sinh như mộng"
+  }
+}
