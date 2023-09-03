@@ -22,7 +22,7 @@ namespace EBooKShopApi.Models
         public string Description { get; set; } = "";
 
         [Required]
-        [Column("price", TypeName = "decimal(10, 2)")]
+        [Column("price")]
         public float Price { get; set; } = 0;
 
         [Required]
