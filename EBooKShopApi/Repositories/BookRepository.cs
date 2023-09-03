@@ -16,7 +16,11 @@ namespace EBooKShopApi.Repositories
         public async Task<List<Book>> GetBooksAsync()
         {
             // lay list books trong db
-            return await _context.Books.ToListAsync();
+            return await _context.Books
+            .Include(b => b.Author)
+            .Include(b => b.Category)
+            .ToListAsync();
+            
         }
     }
 }
