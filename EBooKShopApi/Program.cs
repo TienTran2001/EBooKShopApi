@@ -22,8 +22,8 @@ builder.Services.AddDbContext<EBookShopContext>(options =>
 
 //repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ICategoriesRepository, CategoriesRepository>();
 builder.Services.AddScoped<IBookRepository, BookRepository>();
-
 
 // Register authorization service
 builder.Services.AddAuthorization();
@@ -37,11 +37,11 @@ builder.Services.AddAuthentication(options =>
     jwt.RequireHttpsMetadata = false;
     jwt.SaveToken = true;
     jwt.TokenValidationParameters = new TokenValidationParameters
-    {   
+    {
         // ky vao token
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(builder.Configuration.GetValue<string>("Jwt:SecretKey") ?? "")),
-        
+
         // tu cap token
         ValidateIssuer = false,
         ValidateAudience = false
