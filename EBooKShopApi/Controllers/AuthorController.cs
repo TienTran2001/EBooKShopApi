@@ -8,7 +8,7 @@ using System.Data;
 
 namespace EBooKShopApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/authors")]
     [ApiController]
     public class AuthorController : ControllerBase
     {
@@ -16,7 +16,7 @@ namespace EBooKShopApi.Controllers
 
         public AuthorController(IAuthorRepository repository)
         {
-            this._repository = repository;
+            _repository = repository;
         }
 
         [HttpGet]
@@ -24,8 +24,8 @@ namespace EBooKShopApi.Controllers
         {
             try
             {
-                var dataes = await _repository.GetAllAsync();
-                return Ok(dataes);
+                var data = await _repository.GetAllAsync();
+                return Ok(data);
             }
             catch (ArgumentException ex)
             {
