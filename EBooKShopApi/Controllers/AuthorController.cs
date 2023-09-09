@@ -5,19 +5,18 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace EBooKShopApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/authors")]
     [ApiController]
-    public class CategoriesController : ControllerBase
+    public class AuthorController : ControllerBase
     {
-        private readonly ICategoriesRepository _repository;
+        private readonly IAuthorRepository _repository;
 
-        public CategoriesController(ICategoriesRepository repository)
+        public AuthorController(IAuthorRepository repository)
         {
-            this._repository = repository;
+            _repository = repository;
         }
 
         [HttpGet]
@@ -25,8 +24,8 @@ namespace EBooKShopApi.Controllers
         {
             try
             {
-                var dataes = await _repository.GetAllAsync();
-                return Ok(dataes);
+                var data = await _repository.GetAllAsync();
+                return Ok(data);
             }
             catch (ArgumentException ex)
             {
@@ -60,20 +59,20 @@ namespace EBooKShopApi.Controllers
 
         [HttpPost]
         [Authorize(Roles = "admin")]
-        public async Task<IActionResult> Create([FromBody] CategoryViewModel categoryViewModel)
+        public async Task<IActionResult> Create([FromBody] AuthorViewModel authorViewModel)
         {
             try
             {
-                var category = new Category
+                var author = new Author
                 {
-                    Name = categoryViewModel.CategoryName
+                    Name = authorViewModel.Name
                 };
-                await _repository.CreateAsync(category);
+                await _repository.CreateAsync(author);
                 return StatusCode(201, new ApiResponse
                 {
                     Success = true,
                     Message = "Created Successfully!",
-                    Data = category
+                    Data = author
                 });
             }
             catch (ArgumentException ex)
@@ -88,15 +87,15 @@ namespace EBooKShopApi.Controllers
         [HttpPut]
         [Route("{id:int}")]
         [Authorize(Roles = "admin")]
-        public async Task<IActionResult> Update([FromBody] CategoryViewModel categoryViewModel, [FromRoute] int id)
+        public async Task<IActionResult> Update([FromBody] AuthorViewModel authorViewModel, [FromRoute] int id)
         {
             try
             {
-                var category = new Category
+                var author = new Author
                 {
-                    Name = categoryViewModel.CategoryName
+                    Name = authorViewModel.Name
                 };
-                if (category == null)
+                if (author == null)
                 {
                     return Ok(new ApiResponse
                     {
@@ -105,12 +104,12 @@ namespace EBooKShopApi.Controllers
                         Data = null
                     });
                 }
-                category = await _repository.UpdateAsync(category, id);
+                author = await _repository.UpdateAsync(author, id);
                 return Ok(new ApiResponse
                 {
                     Success = true,
                     Message = "Updated successfully!",
-                    Data = category
+                    Data = author
                 });
             }
             catch (ArgumentException ex)

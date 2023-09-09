@@ -23,6 +23,8 @@ builder.Services.AddDbContext<EBookShopContext>(options =>
 //repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICategoriesRepository, CategoriesRepository>();
+builder.Services.AddScoped<IAuthorRepository, AuthorRepository>();
+
 
 // Register authorization service
 builder.Services.AddAuthorization();
