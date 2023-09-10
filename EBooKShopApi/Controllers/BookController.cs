@@ -16,7 +16,7 @@ namespace EBooKShopApi.Controllers
         public BookController(IBookRepository bookRepository, ICategoriesRepository categoriesRepository)
         {
             _bookRepository = bookRepository;
-            _categoriesRepository = categoriesRepository;   
+            _categoriesRepository = categoriesRepository;
         }
 
         //https://localhost:port/api/books
@@ -24,7 +24,7 @@ namespace EBooKShopApi.Controllers
         public async Task<IActionResult> GetAllBook()
         {
             try
-            {            
+            {
                 List<Book> books = await _bookRepository.GetBooksAsync();
                 return Ok(new ApiResponse
                 {
@@ -72,6 +72,30 @@ namespace EBooKShopApi.Controllers
             {
 
                 List<Book> books = await _bookRepository.GetBooksByCategoryAsync(id);
+                bool isSuccess = books.Count != 0;
+
+                return Ok(new ApiResponse
+                {
+                    Success = isSuccess ? true : false,
+                    Message = isSuccess ? "Get books is successful!" : "books not found!",
+                    Data = books
+                });
+
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
+
+        //https://localhost:port/api/books/author/{id}
+        [HttpGet("author/{id:int}")]
+        public async Task<ActionResult> GetBooksByAuthor(int id)
+        {
+            try
+            {
+
+                List<Book> books = await _bookRepository.GetBooksByAuthorAsync(id);
                 bool isSuccess = books.Count != 0;
 
                 return Ok(new ApiResponse

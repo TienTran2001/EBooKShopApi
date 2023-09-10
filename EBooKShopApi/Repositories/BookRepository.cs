@@ -20,7 +20,7 @@ namespace EBooKShopApi.Repositories
             .Include(b => b.Author)
             .Include(b => b.Category)
             .ToListAsync();
-            
+
         }
 
         // ham lay detail book 
@@ -29,7 +29,7 @@ namespace EBooKShopApi.Repositories
             return await _context.Books
                 .Include(b => b.Author)
                 .Include(b => b.Category)
-                .FirstOrDefaultAsync(b => b.BookId == id);     
+                .FirstOrDefaultAsync(b => b.BookId == id);
         }
 
         // ham lay sach theo categogy
@@ -39,6 +39,16 @@ namespace EBooKShopApi.Repositories
                 .Include(b => b.Author)
                 .Include(b => b.Category)
                 .Where(b => b.CategoryId == categoryId)
+                .ToListAsync();
+        }
+
+        // ham lay sach theo author
+        public async Task<List<Book>> GetBooksByAuthorAsync(int authorId)
+        {
+            return await _context.Books
+                .Include(b => b.Author)
+                .Include(b => b.Category)
+                .Where(b => b.AuthorId == authorId)
                 .ToListAsync();
         }
     }
