@@ -1,6 +1,7 @@
 ﻿using EBooKShopApi.Models;
 using EBooKShopApi.Repositories;
 using EBooKShopApi.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -105,6 +106,28 @@ namespace EBooKShopApi.Controllers
                     Data = books
                 });
 
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
+
+        //https://localhost:port/api/books/add
+        [Authorize(Roles = "admin")]
+        [HttpPost("add")]
+        public async Task<ActionResult> AddBook([FromForm] Book book, IFormFile imageFile)
+        {
+            try
+            {
+                Book newBook = await _bookRepository.AddBookAsync(book, imageFile);
+
+                return Ok(new ApiResponse
+                {
+                    Success = true,
+                    Message = "Add book is successful",
+                    Data = newBook
+                });
             }
             catch (ArgumentException ex)
             {

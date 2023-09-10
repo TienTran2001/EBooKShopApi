@@ -1,4 +1,5 @@
 ﻿using EBooKShopApi.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace EBooKShopApi.Repositories
@@ -6,10 +7,12 @@ namespace EBooKShopApi.Repositories
     public class BookRepository : IBookRepository
     {
         private readonly EBookShopContext _context;
+        private readonly IWebHostEnvironment _hostingEnvironment;
 
-        public BookRepository(EBookShopContext context)
+        public BookRepository(EBookShopContext context, IWebHostEnvironment hostingEnvironment)
         {
             _context = context;
+            _hostingEnvironment = hostingEnvironment;
         }
 
         // ham lay tat ca cac cuon sach
@@ -51,5 +54,31 @@ namespace EBooKShopApi.Repositories
                 .Where(b => b.AuthorId == authorId)
                 .ToListAsync();
         }
+
+        // ham them sach
+        public async Task<Book> AddBookAsync(Book book, IFormFile imageFile)
+        {
+            if (imageFile != null && imageFile.Length > 0)
+            {
+
+                string imagePath = Path.Combine(_hostingEnvironment.WebRootPath, "uploads");
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
+                var filePath = Path.Combine(imagePath, fileName);
+
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await imageFile.CopyToAsync(fileStream);
+                }
+
+                // Lưu đường dẫn ảnh vào trường Image của db
+                book.Image = fileName;
+            }
+
+            _context.Books.Add(book);
+            await _context.SaveChangesAsync();
+
+            return book;
+        }
+
     }
 }
