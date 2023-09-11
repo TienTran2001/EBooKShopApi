@@ -80,5 +80,18 @@ namespace EBooKShopApi.Repositories
             return book;
         }
 
+        // ham xoa sach theo id
+        public async Task<bool> DeleteBookAsync(int id)
+        {
+            var bookDelete = await _context.Books.FindAsync(id);
+            if (bookDelete == null)
+            {
+                return false;
+            }
+            _context.Books.Remove(bookDelete);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
     }
 }

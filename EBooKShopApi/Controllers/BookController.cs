@@ -113,9 +113,9 @@ namespace EBooKShopApi.Controllers
             }
         }
 
-        //https://localhost:port/api/books/add
+        //https://localhost:port/api/books
         [Authorize(Roles = "admin")]
-        [HttpPost("add")]
+        [HttpPost]
         public async Task<ActionResult> AddBook([FromForm] Book book, IFormFile imageFile)
         {
             try
@@ -134,5 +134,26 @@ namespace EBooKShopApi.Controllers
                 return BadRequest(new { Message = ex.Message });
             }
         }
+
+        //https://localhost:port/api/books
+        [Authorize(Roles = "admin")]
+        [HttpDelete("{id:int}")]
+        public async Task<ActionResult> DeleteBook(int id)
+        {
+            try
+            {
+                bool res = await _bookRepository.DeleteBookAsync(id);
+                return Ok(new ApiResponse
+                {
+                    Success = res,
+                    Message = res ? "Delete is successful" : "Book does not exist"
+                });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
+
     }
 }
