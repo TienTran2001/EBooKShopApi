@@ -135,7 +135,7 @@ namespace EBooKShopApi.Controllers
             }
         }
 
-        //https://localhost:port/api/books
+        //https://localhost:port/api/books/id
         [Authorize(Roles = "admin")]
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> DeleteBook(int id)
@@ -155,5 +155,25 @@ namespace EBooKShopApi.Controllers
             }
         }
 
+        //https://localhost:port/api/books/id
+        [Authorize(Roles = "admin")]
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> UpdateBook(int id, [FromForm] BookViewModel bookViewModel, IFormFile imageFile)
+        {
+            try
+            {
+                var res = await _bookRepository.UpdateBookAsync(id, bookViewModel, imageFile);
+                return Ok(new ApiResponse
+                {
+                    Success = res != null ? true : false,
+                    Message = res != null ? "Update is successful" : "Update is not successful",
+                    Data = res
+                });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using EBooKShopApi.Models;
+using EBooKShopApi.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -91,6 +92,39 @@ namespace EBooKShopApi.Repositories
             _context.Books.Remove(bookDelete);
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        // ham update book tu admin
+        public async Task<Book?> UpdateBookAsync(int id, BookViewModel bookViewModel, IFormFile imageFile)
+        {
+            var existBook = await _context.Books.FindAsync(id);
+            if (existBook == null)
+            {
+                return null;
+            }
+
+            // update
+            existBook.Name = bookViewModel.Name;
+            existBook.Description = bookViewModel.Description;
+            existBook.Price = bookViewModel.Price;
+            existBook.Quantity = bookViewModel.Quantity;
+            existBook.AuthorId = bookViewModel.AuthorId;
+            existBook.CategoryId = bookViewModel.CategoryId;
+            if (imageFile != null)
+            {
+                var imagePath = Path.Combine(_hostingEnvironment.WebRootPath, "uploads");
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
+                var filePath = Path.Combine(imagePath, fileName);
+
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await imageFile.CopyToAsync(fileStream);
+                }
+                existBook.Image = fileName;
+            }
+            await _context.SaveChangesAsync();
+
+            return existBook;
         }
 
     }
