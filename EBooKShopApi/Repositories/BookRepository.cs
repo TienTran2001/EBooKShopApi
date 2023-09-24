@@ -36,6 +36,16 @@ namespace EBooKShopApi.Repositories
                 .FirstOrDefaultAsync(b => b.BookId == id);
         }
 
+        // ham tim kiem book theo ten
+        public async Task<List<Book>> SearchBooksByNameAsync(string name)
+        {
+            var books = await _context.Books
+                .Where(x => x.Name.Contains(name))
+                .ToListAsync();
+
+            return books;
+        }
+
         // ham lay sach theo categogy
         public async Task<List<Book>> GetBooksByCategoryAsync(int categoryId)
         {

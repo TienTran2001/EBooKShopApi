@@ -65,6 +65,30 @@ namespace EBooKShopApi.Controllers
             }
         }
 
+        //https://localhost:port/api/books/{name}
+        [HttpGet]
+        [Route("search/{name}")]
+        public async Task<ActionResult> SearchBooksByName(string name)
+        {
+            try
+            {
+                var books = await _bookRepository.SearchBooksByNameAsync(name);
+
+                return Ok(new ApiResponse
+                {
+                    Success = true,
+                    Message = "Get books is successful!",
+                    Data = books
+                });
+
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
+
+
         //https://localhost:port/api/books/category/{id}
         [HttpGet("category/{id:int}")]
         public async Task<ActionResult> GetBooksByCategory(int id)
