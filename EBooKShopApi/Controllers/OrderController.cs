@@ -123,5 +123,57 @@ namespace EBooKShopApi.Controllers
             }
         }
 
+        //https://localhost:port/api/orders/removecartitem/{orderItemId}
+        [HttpDelete]
+        [Authorize]
+        [Route("removeitemtocart/{orderItemId:int}")]
+        public async Task<ActionResult> RemoveCartItem(int orderItemId)
+        {
+            try
+            {
+                var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "userId");
+                if (userIdClaim != null)
+                {
+                    int userId = int.Parse(userIdClaim.Value);
+                    var res = await _orderRepository.RemoveCartItemAsync(orderItemId, userId);
+                    return Ok(new ApiResponse
+                    {
+                        Success = res,
+                        Message = res ? "remove item successfully" : "Cannot remove item to cart ",
+                    });
+                }
+                return Ok(new ApiResponse
+                {
+                    Success = false,
+                    Message = "You are not logged in.",
+                });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
+
+        //https://localhost:port/api/orders/changecartitem/{orderItemId}/{quantity}
+        [HttpPut]
+        [Authorize]
+        [Route("changecartitem/{orderItemId:int}/{quantity:int}")]
+        public async Task<ActionResult> ChangeCartItem(int orderItemId, int quantity)
+        {
+            try
+            {
+                
+                var res = await _orderRepository.ChangeCartItemAsync(orderItemId, quantity);
+                return Ok(new ApiResponse
+                {
+                    Success = res,
+                    Message = res ? "change item successfully" : "Cannot change item to cart ",
+                });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
     }
 }

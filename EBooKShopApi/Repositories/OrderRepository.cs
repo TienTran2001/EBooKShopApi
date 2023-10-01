@@ -95,7 +95,47 @@ namespace EBooKShopApi.Repositories
             return order;
         }
 
-        //
+        // ham thay doi so luong don hang
+        public async Task<bool> ChangeCartItemAsync(int orderItemId, int quantity)
+        {
+            var orderItem = await _context.OrderItems.FindAsync(orderItemId);
+            if (orderItem == null)
+            {
+                return false;
+            }
+
+            orderItem.Quantity = quantity;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        // ham xoa phan tu trong gio hang
+        public async Task<bool> RemoveCartItemAsync(int orderItemId, int userId)
+        {
+            // kiem tra don hang co trang thai la InCart hay khong
+            var order = await _context.Orders
+                .Include(o => o.OrderItems)
+                .Where(o => o.UserId == userId && (OrderStatus)o.OrderStatus == OrderStatus.InCart)
+                .FirstOrDefaultAsync();
+
+            if (order == null)
+            {
+                return false;
+            }
+
+            // kiem tra sach do co trong gio hang hay khong
+            var existingItem = order.OrderItems.FirstOrDefault(oi => oi.OrderItemId == orderItemId);
+
+            if (existingItem == null) return false;
+            
+            
+            _context.OrderItems.Remove(existingItem);
+            await _context.SaveChangesAsync();
+            
+
+            return true;
+
+        }
 
     }
 }
