@@ -1,0 +1,179 @@
+using EBooKShopApi.Models;
+using EBooKShopApi.Repositories;
+using EBooKShopApi.ViewModels;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using System.Text.Json.Serialization;
+using System.Text.Json;
+
+namespace EBooKShopApi.Controllers
+{
+    [ApiController]
+    [Route("api/orders")]
+    public class OrderController : ControllerBase
+    {
+        private readonly IOrderRepository _orderRepository;
+
+        public OrderController(IOrderRepository orderRepository)
+        {
+            _orderRepository = orderRepository;
+        }
+
+        //https://localhost:port/api/orders/cart
+        [HttpGet]
+        [Authorize]
+        [Route("cart")]
+        public async Task<ActionResult> GetCartItems()
+        {
+            try
+            {
+                var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "userId");
+                if (userIdClaim != null)
+                {
+                    int userId = int.Parse(userIdClaim.Value);
+                    var res = await _orderRepository.GetCartItemsAsync(userId);
+                    return Ok(new ApiResponse
+                    {
+                        Success = res != null ? true : false,
+                        Message = "Get Cart",
+                        Data = res
+                    });
+                }
+                return Ok(new ApiResponse
+                {
+                    Success = false,
+                    Message = "Don't get Cart",
+                    Data = null
+                });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
+
+        //https://localhost:port/api/orders/{id}
+        [HttpGet]
+        [Authorize]
+        [Route("{id:int}")]
+        public async Task<ActionResult> GetDetailOrder(int id)
+        {
+            try
+            {
+                var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "userId");
+                if (userIdClaim != null)
+                {
+                    int userId = int.Parse(userIdClaim.Value);
+                    var res = await _orderRepository.GetDetailOrderAsync(id, userId);
+                    /*var options = new JsonSerializerOptions
+                    {
+                        ReferenceHandler = ReferenceHandler.Preserve,
+                        WriteIndented = true
+                    };
+                    var json = JsonSerializer.Serialize(res, options);*/
+                    return Ok(new ApiResponse
+                    {
+                        Success = true,
+                        Message = "Get detail order",
+                        Data = res
+                    });
+                }
+                return Ok(new ApiResponse
+                {
+                    Success = false,
+                    Message = "Don't get order",
+                    Data = null
+                });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
+
+        //https://localhost:port/api/orders/addtocart
+        [HttpPost]
+        [Authorize]
+        [Route("addtocart/{bookId:int}/{quantity:int}")]
+        public async Task<ActionResult> AddToCart(int bookId, int quantity)
+        {
+            try
+            {
+                var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "userId");
+                if (userIdClaim != null)
+                {
+                    int userId = int.Parse(userIdClaim.Value);
+                    var res = await _orderRepository.AddToCartAsync(bookId, quantity, userId);
+                    return Ok(new ApiResponse
+                    {
+                        Success = res,
+                        Message = res ? "Add to cart successfully" : "Cannot add to cart ",
+                    });
+                }
+                return Ok(new ApiResponse
+                {
+                    Success = false,
+                    Message = "You are not logged in.",
+                });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
+
+        //https://localhost:port/api/orders/removecartitem/{orderItemId}
+        [HttpDelete]
+        [Authorize]
+        [Route("removeitemtocart/{orderItemId:int}")]
+        public async Task<ActionResult> RemoveCartItem(int orderItemId)
+        {
+            try
+            {
+                var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "userId");
+                if (userIdClaim != null)
+                {
+                    int userId = int.Parse(userIdClaim.Value);
+                    var res = await _orderRepository.RemoveCartItemAsync(orderItemId, userId);
+                    return Ok(new ApiResponse
+                    {
+                        Success = res,
+                        Message = res ? "remove item successfully" : "Cannot remove item to cart ",
+                    });
+                }
+                return Ok(new ApiResponse
+                {
+                    Success = false,
+                    Message = "You are not logged in.",
+                });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
+
+        //https://localhost:port/api/orders/changecartitem/{orderItemId}/{quantity}
+        [HttpPut]
+        [Authorize]
+        [Route("changecartitem/{orderItemId:int}/{quantity:int}")]
+        public async Task<ActionResult> ChangeCartItem(int orderItemId, int quantity)
+        {
+            try
+            {
+                
+                var res = await _orderRepository.ChangeCartItemAsync(orderItemId, quantity);
+                return Ok(new ApiResponse
+                {
+                    Success = res,
+                    Message = res ? "change item successfully" : "Cannot change item to cart ",
+                });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
+    }
+}
