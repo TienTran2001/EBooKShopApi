@@ -40,7 +40,14 @@ namespace EBooKShopApi.Repositories
 
             if (order == null)
             {
-                return false;
+
+                order = new Order
+                {
+                    UserId = userId,
+                    OrderStatus = (int)OrderStatus.InCart,
+                    OrderDate = DateTime.Now
+                };
+                _context.Orders.Add(order);
             }
 
             // kiem tra sach do co trong gio hang hay khong
