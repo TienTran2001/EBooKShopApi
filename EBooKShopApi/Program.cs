@@ -32,6 +32,15 @@ builder.Services.AddScoped<IBookRepository, BookRepository>();
 builder.Services.AddScoped<IAuthorRepository, AuthorRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 
+// cors
+builder.Services.AddCors(o => o.AddPolicy("MyPolicy", options =>
+{
+    options.AllowAnyOrigin()
+           .AllowAnyMethod()
+           .AllowAnyHeader();
+}));
+
+
 
 // Register authorization service
 builder.Services.AddAuthorization();
@@ -69,6 +78,9 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+// enable cors
+app.UseCors("MyPolicy");
 
 app.MapControllers();
 
