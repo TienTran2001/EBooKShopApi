@@ -82,6 +82,9 @@ app.UseAuthorization();
 // enable cors
 app.UseCors("MyPolicy");
 
+// use static file
+app.UseStaticFiles();
+
 app.MapControllers();
 
 app.Run();
