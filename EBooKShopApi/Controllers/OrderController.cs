@@ -175,5 +175,27 @@ namespace EBooKShopApi.Controllers
                 return BadRequest(new { Message = ex.Message });
             }
         }
+
+        //https://localhost:port/api/orders/checkout/{orderId:int}
+        [HttpPut]
+        [Authorize]
+        [Route("checkout/{orderId:int}")]
+        public async  Task<ActionResult> CheckOutCart(int orderId)
+        {
+            try
+            {
+
+                /*var res = await _orderRepository.ChangeCartItemAsync(orderItemId, quantity);*/
+                return Ok(new ApiResponse
+                {
+                    Success = true,
+                    Message = "Checkout to cart ",
+                });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
     }
 }

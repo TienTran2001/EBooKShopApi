@@ -45,13 +45,15 @@ namespace EBooKShopApi.Repositories
                 {
                     UserId = userId,
                     OrderStatus = (int)OrderStatus.InCart,
-                    OrderDate = DateTime.Now
+                    OrderDate = DateTime.Now,
+                    TotalAmount = 0
                 };
                 _context.Orders.Add(order);
+                await _context.SaveChangesAsync(); 
             }
 
             // kiem tra sach do co trong gio hang hay khong
-            var existingBook = order.OrderItems.FirstOrDefault(o => o.BookId == bookId);
+            var existingBook = order?.OrderItems?.FirstOrDefault(o => o.BookId == bookId);
 
             if (existingBook != null)
             {
