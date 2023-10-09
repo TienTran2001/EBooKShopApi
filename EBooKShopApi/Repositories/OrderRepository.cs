@@ -16,17 +16,20 @@ namespace EBooKShopApi.Repositories
         }
 
         // lay danh sach trong gio hang
-        public async Task<IEnumerable<OrderItem>?> GetCartItemsAsync(int userId)
+        public async Task<Order?> GetCartItemsAsync(int userId)
         {
-            var carts = await _context.OrderItems
+            /*var carts = await _context.OrderItems
                     .Include(oi => oi.Book) // Nạp thông tin về sách liên quan đến từng order item
-                    .Include(oi => oi.Order)
                     .Where(oi => oi.Order.UserId == userId && (OrderStatus)oi.Order.OrderStatus == OrderStatus.InCart)
-                    .ToListAsync();
+                    .ToListAsync();*/
+            
+            var carts = await _context.Orders
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Book) // lấy thông tin sách của từng order item.
+                .FirstOrDefaultAsync(o => o.UserId == userId && (OrderStatus)o.OrderStatus == OrderStatus.InCart);
 
-            if (carts != null)
-                return carts;
-            return null;
+
+            return carts;
         }
 
         // add to cart 
