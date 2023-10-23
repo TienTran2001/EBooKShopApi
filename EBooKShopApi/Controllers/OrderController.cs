@@ -1,4 +1,4 @@
-using EBooKShopApi.Models;
+﻿using EBooKShopApi.Models;
 using EBooKShopApi.Repositories;
 using EBooKShopApi.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -185,11 +185,81 @@ namespace EBooKShopApi.Controllers
             try
             {
 
-                /*var res = await _orderRepository.ChangeCartItemAsync(orderItemId, quantity);*/
+                var res = await _orderRepository
+                    .ChangeOrderStatusAsync(orderId, OrderStatus.InCart, OrderStatus.Pending);
                 return Ok(new ApiResponse
                 {
-                    Success = true,
-                    Message = "Checkout to cart ",
+                    Success = res,
+                    Message = res ? "Checkout to cart " : "Checkout fail",
+                });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
+
+        //https://localhost:port/api/orders/confirm/{orderId:int}
+        [HttpPut]
+        [Authorize(Roles = "admin")]
+        [Route("confirm/{orderId:int}")]
+        public async Task<ActionResult> ComfirmedByAdmin(int orderId)
+        {
+            try
+            {
+
+                var res = await _orderRepository
+                    .ChangeOrderStatusAsync(orderId, OrderStatus.Pending, OrderStatus.Confirmed);
+                return Ok(new ApiResponse
+                {
+                    Success = res,
+                    Message = res ? "Comfirmed " : "Comfirmed fail",
+                });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
+
+        //https://localhost:port/api/orders/delivered/{orderId:int}
+        [HttpPut]
+        [Authorize]
+        [Route("delivered/{orderId:int}")]
+        public async Task<ActionResult> Delivered(int orderId)
+        {
+            try
+            {
+
+                var res = await _orderRepository
+                    .ChangeOrderStatusAsync(orderId, OrderStatus.Confirmed, OrderStatus.Delivered);
+                return Ok(new ApiResponse
+                {
+                    Success = res,
+                    Message = res ? "Delivered " : "Delivered fail",
+                });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
+
+        //https://localhost:port/api/orders/cancel/{orderId:int} hủy đơn
+        [HttpPut]
+        [Authorize]
+        [Route("cancel/{orderId:int}")]
+        public async Task<ActionResult> Cancel(int orderId)
+        {
+            try
+            {
+
+                var res = await _orderRepository
+                    .CancelOderAsync(orderId);
+                return Ok(new ApiResponse
+                {
+                    Success = res,
+                    Message = res ? "Cancel " : "Cancel fail",
                 });
             }
             catch (ArgumentException ex)

@@ -147,7 +147,47 @@ namespace EBooKShopApi.Repositories
 
             return true;
 
+        }    
+        
+        // ham doi trang thai 
+        public async Task<bool> ChangeOrderStatusAsync(int orderId, OrderStatus statusOld, OrderStatus statusNew )
+        {
+            // tim order theo id
+            var order = await _context.Orders
+                .FirstOrDefaultAsync(o => o.OrderId == orderId);
+
+            if (order == null) return false;
+
+            if (order.OrderStatus == (int)statusOld)
+            {
+                order.OrderStatus = (int)statusNew;
+
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            return false;
         }
+
+        // ham huy hoa don
+        public async Task<bool> CancelOderAsync (int orderId)
+        {
+            // tim order theo id
+            var order = await _context.Orders
+                .FirstOrDefaultAsync(o => o.OrderId == orderId);
+
+            if (order == null) return false;
+            
+            // phải ở trạng thái chờ và trạng thái xác nhận mới (sau có thể bổ xung) có thể hủy đơn
+            if (order.OrderStatus == (int)OrderStatus.Pending || order.OrderStatus == (int)OrderStatus.Confirmed)
+            {
+                order.OrderStatus = (int)OrderStatus.Cancel;
+
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            return false;
+        }
+
 
     }
 }
