@@ -1,5 +1,9 @@
 
 public enum OrderStatus
 {
-    InCart
+    InCart,
+    Pending,
+    Confirmed,
+    Delivered,
+    Cancel
 }
