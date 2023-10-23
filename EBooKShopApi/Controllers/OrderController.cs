@@ -267,5 +267,39 @@ namespace EBooKShopApi.Controllers
                 return BadRequest(new { Message = ex.Message });
             }
         }
+
+        //https://localhost:port/api/orders/status/{status}
+        [HttpGet]
+        [Authorize]
+        [Route("status/{status:int}")]
+        public async Task<ActionResult> GetOrderByOrderStatus(int status)
+        {
+            try
+            {
+                var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "userId");
+                if (userIdClaim != null)
+                {
+                    int userId = int.Parse(userIdClaim.Value);
+                    var res = await _orderRepository.GetOrderByOrderStatusAsync(status, userId);
+                   
+                    return Ok(new ApiResponse
+                    {
+                        Success = true,
+                        Message = "Get order",
+                        Data = res
+                    });
+                }
+                return Ok(new ApiResponse
+                {
+                    Success = false,
+                    Message = "Don't get order",
+                    Data = null
+                });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
     }
 }

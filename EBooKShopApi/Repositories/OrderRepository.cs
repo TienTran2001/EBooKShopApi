@@ -55,44 +55,42 @@ namespace EBooKShopApi.Repositories
                 await _context.SaveChangesAsync(); 
             }
 
-            // kiem tra sach do co trong gio hang hay khong
-            var existingBook = order?.OrderItems?.FirstOrDefault(o => o.BookId == bookId);
+            
+            var book = await _context.Books.FindAsync(bookId);
 
-            if (existingBook != null)
+            if (book != null && book.Stock >= quantity)
             {
-                existingBook.Quantity += quantity;
-            }
-            else
+                // kiem tra sach do co trong gio hang hay khong
+                var existingBook = order?.OrderItems?.FirstOrDefault(o => o.BookId == bookId);
+
+                if (existingBook != null)
+                {
+                    existingBook.Quantity += quantity;
+                } else
+                {
+                        // Tạo một chi tiết đơn hàng mới và thêm vào đơn hàng
+                        var orderItem = new OrderItem
+                        {
+                            OrderId = order.OrderId,
+                            BookId = book.BookId,
+                            Quantity = quantity,
+                            Price = (decimal)book.Price,
+                        };
+                        _context.OrderItems.Add(orderItem);
+                }
+                // Cập nhật tổng tiền của order
+                order.TotalAmount = order.OrderItems.Sum(oi => oi.Price * oi.Quantity);
+
+                // Giảm số lượng trong kho
+                book.Stock -= quantity;
+                
+                await _context.SaveChangesAsync();
+                return true;
+            } else
             {
-                // neu sach chua co trong gio hang thi them moi
-
-                var book = await _context.Books
-                    .FindAsync(bookId);
-                if (book != null)
-                {
-                    // Tạo một chi tiết đơn hàng mới và thêm vào đơn hàng
-                    var orderItem = new OrderItem
-                    {
-                        OrderId = order.OrderId,
-                        BookId = book.BookId,
-                        Quantity = quantity,
-                        Price = (decimal)book.Price,
-                    };
-                    _context.OrderItems.Add(orderItem);
-                }
-                else
-                {
-                    // sach khong ton tai
-                    return true;
-                }
+                return true;
             }
-
-            // Cập nhật tổng tiền của order
-            order.TotalAmount = order.OrderItems.Sum(oi => oi.Price * oi.Quantity);
-
-
-            await _context.SaveChangesAsync();
-            return true;
+   
         }
 
         // xem chi tiết hóa đơn
@@ -116,7 +114,22 @@ namespace EBooKShopApi.Repositories
                 return false;
             }
 
+            var oldQuantity = orderItem.Quantity;
+
+            var book = await _context.Books.FindAsync(orderItem.BookId);
+            if (book != null && (quantity - oldQuantity) > book.Stock)
+            {
+                // Số lượng mới vượt quá số lượng trong kho
+                return false;
+            }
+            
             orderItem.Quantity = quantity;
+
+            if (book != null)
+            {
+                book.Stock += oldQuantity - quantity;
+            }
+
             await _context.SaveChangesAsync();
             return true;
         }
@@ -139,9 +152,17 @@ namespace EBooKShopApi.Repositories
             var existingItem = order.OrderItems.FirstOrDefault(oi => oi.OrderItemId == orderItemId);
 
             if (existingItem == null) return false;
-            
-            
+
+            var book = await _context.Books.FindAsync(existingItem.BookId);
+            if (book == null)
+            {
+                return false;
+            }
+            var quantity = existingItem.Quantity;
+            book.Stock += quantity;
+
             _context.OrderItems.Remove(existingItem);
+
             await _context.SaveChangesAsync();
             
 
@@ -173,6 +194,7 @@ namespace EBooKShopApi.Repositories
         {
             // tim order theo id
             var order = await _context.Orders
+                .Include(o => o.OrderItems)
                 .FirstOrDefaultAsync(o => o.OrderId == orderId);
 
             if (order == null) return false;
@@ -181,6 +203,17 @@ namespace EBooKShopApi.Repositories
             if (order.OrderStatus == (int)OrderStatus.Pending || order.OrderStatus == (int)OrderStatus.Confirmed)
             {
                 order.OrderStatus = (int)OrderStatus.Cancel;
+                foreach (var orderItem in order.OrderItems)
+                {
+                    
+                    var product = await _context.Books.FindAsync(orderItem.BookId);
+
+                    if (product != null)
+                    {
+                        // Trả lại số lượng đặt cho kho
+                        product.Stock += orderItem.Quantity;
+                    }
+                }
 
                 await _context.SaveChangesAsync();
                 return true;
@@ -188,6 +221,14 @@ namespace EBooKShopApi.Repositories
             return false;
         }
 
-
+        // ham lay ra danh sach order theo trang thai
+        public async Task<List<Order>?> GetOrderByOrderStatusAsync(int status, int userId)
+        {
+           
+            var order = await _context.Orders
+                .Where( o => o.UserId == userId && o.OrderStatus == status)
+                .ToListAsync();
+            return order;
+        }
     }
 }

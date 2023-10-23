@@ -26,7 +26,7 @@ namespace EBooKShopApi.Models
 
         [Required]
         [Column("quantity")]
-        public int Quantity { get; set; }
+        public int Stock { get; set; }
 
         [Column("image")]
         public string Image { get; set; } = "";
