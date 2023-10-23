@@ -194,6 +194,7 @@ namespace EBooKShopApi.Repositories
         {
             // tim order theo id
             var order = await _context.Orders
+                .Include(o => o.OrderItems)
                 .FirstOrDefaultAsync(o => o.OrderId == orderId);
 
             if (order == null) return false;
@@ -202,6 +203,17 @@ namespace EBooKShopApi.Repositories
             if (order.OrderStatus == (int)OrderStatus.Pending || order.OrderStatus == (int)OrderStatus.Confirmed)
             {
                 order.OrderStatus = (int)OrderStatus.Cancel;
+                foreach (var orderItem in order.OrderItems)
+                {
+                    
+                    var product = await _context.Books.FindAsync(orderItem.BookId);
+
+                    if (product != null)
+                    {
+                        // Trả lại số lượng đặt cho kho
+                        product.Stock += orderItem.Quantity;
+                    }
+                }
 
                 await _context.SaveChangesAsync();
                 return true;
