@@ -12,6 +12,6 @@ namespace EBooKShopApi.Repositories
         Task<bool> RemoveCartItemAsync(int orderItemId, int userId);
         Task<bool> ChangeOrderStatusAsync(int orderId, OrderStatus statusOld, OrderStatus statusNew);
         Task<bool> CancelOderAsync(int orderId);
-
+        Task<List<Order>?> GetOrderByOrderStatusAsync(int status, int userId);
     }
 }

@@ -221,6 +221,14 @@ namespace EBooKShopApi.Repositories
             return false;
         }
 
-
+        // ham lay ra danh sach order theo trang thai
+        public async Task<List<Order>?> GetOrderByOrderStatusAsync(int status, int userId)
+        {
+           
+            var order = await _context.Orders
+                .Where( o => o.UserId == userId && o.OrderStatus == status)
+                .ToListAsync();
+            return order;
+        }
     }
 }
