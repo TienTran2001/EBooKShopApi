@@ -117,7 +117,7 @@ namespace EBooKShopApi.Repositories
             existBook.Name = bookViewModel.Name;
             existBook.Description = bookViewModel.Description;
             existBook.Price = bookViewModel.Price;
-            existBook.Quantity = bookViewModel.Quantity;
+            existBook.Stock = bookViewModel.Quantity;
             existBook.AuthorId = bookViewModel.AuthorId;
             existBook.CategoryId = bookViewModel.CategoryId;
             if (imageFile != null)
