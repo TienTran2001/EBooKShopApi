@@ -114,7 +114,22 @@ namespace EBooKShopApi.Repositories
                 return false;
             }
 
+            var oldQuantity = orderItem.Quantity;
+
+            var book = await _context.Books.FindAsync(orderItem.BookId);
+            if (book != null && (quantity - oldQuantity) > book.Stock)
+            {
+                // Số lượng mới vượt quá số lượng trong kho
+                return false;
+            }
+            
             orderItem.Quantity = quantity;
+
+            if (book != null)
+            {
+                book.Stock += oldQuantity - quantity;
+            }
+
             await _context.SaveChangesAsync();
             return true;
         }
@@ -137,9 +152,17 @@ namespace EBooKShopApi.Repositories
             var existingItem = order.OrderItems.FirstOrDefault(oi => oi.OrderItemId == orderItemId);
 
             if (existingItem == null) return false;
-            
-            
+
+            var book = await _context.Books.FindAsync(existingItem.BookId);
+            if (book == null)
+            {
+                return false;
+            }
+            var quantity = existingItem.Quantity;
+            book.Stock += quantity;
+
             _context.OrderItems.Remove(existingItem);
+
             await _context.SaveChangesAsync();
             
 
