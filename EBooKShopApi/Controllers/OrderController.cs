@@ -105,13 +105,25 @@ namespace EBooKShopApi.Controllers
                 {
                     int userId = int.Parse(userIdClaim.Value);
                     var res = await _orderRepository.AddToCartAsync(bookId, quantity, userId);
-                    return Ok(new ApiResponse
+                    if (res)
                     {
-                        Success = res,
-                        Message = res ? "Add to cart successfully" : "Cannot add to cart ",
-                    });
+                        return Ok(new ApiResponse
+                        {
+                            Success = res,
+                            Message = "Add to cart successfully!!!",
+                        });
+
+                    }
+                    else
+                    {
+                        return BadRequest(new ApiResponse
+                        {
+                            Success = res,
+                            Message = "Order Item does not exist or the quantity exceeds the available stock."
+                        });
+                    }
                 }
-                return Ok(new ApiResponse
+                return Unauthorized(new ApiResponse
                 {
                     Success = false,
                     Message = "You are not logged in.",
@@ -167,7 +179,7 @@ namespace EBooKShopApi.Controllers
                 return Ok(new ApiResponse
                 {
                     Success = res,
-                    Message = res ? "change item successfully" : "Cannot change item to cart ",
+                    Message = res ? "change item successfully" : "Order Item does not exist or the quantity exceeds the available stock",
                 });
             }
             catch (ArgumentException ex)

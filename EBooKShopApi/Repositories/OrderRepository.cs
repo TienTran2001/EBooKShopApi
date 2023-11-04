@@ -27,9 +27,16 @@ namespace EBooKShopApi.Repositories
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.Book) // lấy thông tin sách của từng order item.
                 .FirstOrDefaultAsync(o => o.UserId == userId && (OrderStatus)o.OrderStatus == OrderStatus.InCart);
-
-
+           
             return carts;
+        }
+
+        public async Task<bool> RecalculateOrderTotalAsync(Order order)
+        {
+            
+            order.TotalAmount = order.OrderItems.Sum(oi => oi.Price * oi.Quantity);
+            await _context.SaveChangesAsync();
+            return true;
         }
 
         // add to cart 
@@ -79,7 +86,8 @@ namespace EBooKShopApi.Repositories
                         _context.OrderItems.Add(orderItem);
                 }
                 // Cập nhật tổng tiền của order
-                order.TotalAmount = order.OrderItems.Sum(oi => oi.Price * oi.Quantity);
+                if (order != null)
+                    await RecalculateOrderTotalAsync(order);
 
                 // Giảm số lượng trong kho
                 book.Stock -= quantity;
@@ -88,7 +96,7 @@ namespace EBooKShopApi.Repositories
                 return true;
             } else
             {
-                return true;
+                return false;
             }
    
         }
@@ -131,6 +139,14 @@ namespace EBooKShopApi.Repositories
             }
 
             await _context.SaveChangesAsync();
+
+            var order = await _context.Orders
+                .Include(o => o.OrderItems)
+                .Where(o => (OrderStatus)o.OrderStatus == OrderStatus.InCart)
+                .FirstOrDefaultAsync();
+            if(order != null)
+                await RecalculateOrderTotalAsync(order);
+
             return true;
         }
 
@@ -164,8 +180,13 @@ namespace EBooKShopApi.Repositories
             _context.OrderItems.Remove(existingItem);
 
             await _context.SaveChangesAsync();
-            
 
+            var orderNew = await _context.Orders
+                .Include(o => o.OrderItems)
+                .Where(o => (OrderStatus)o.OrderStatus == OrderStatus.InCart)
+                .FirstOrDefaultAsync();
+            if (orderNew != null)
+                await RecalculateOrderTotalAsync(orderNew);
             return true;
 
         }    
@@ -178,6 +199,11 @@ namespace EBooKShopApi.Repositories
                 .FirstOrDefaultAsync(o => o.OrderId == orderId);
 
             if (order == null) return false;
+
+            if (statusNew == OrderStatus.Pending)
+            {
+                order.OrderDate = DateTime.Now;
+            }
 
             if (order.OrderStatus == (int)statusOld)
             {
