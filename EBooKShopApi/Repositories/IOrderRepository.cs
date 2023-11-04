@@ -13,5 +13,6 @@ namespace EBooKShopApi.Repositories
         Task<bool> ChangeOrderStatusAsync(int orderId, OrderStatus statusOld, OrderStatus statusNew);
         Task<bool> CancelOderAsync(int orderId);
         Task<List<Order>?> GetOrderByOrderStatusAsync(int status, int userId);
+        Task<bool> RecalculateOrderTotalAsync(Order order);
     }
 }

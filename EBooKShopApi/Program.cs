@@ -25,12 +25,15 @@ builder.Services.AddControllersWithViews()
     options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
 );
 
+
+
 //repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICategoriesRepository, CategoriesRepository>();
 builder.Services.AddScoped<IBookRepository, BookRepository>();
 builder.Services.AddScoped<IAuthorRepository, AuthorRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+
 
 // cors
 builder.Services.AddCors(o => o.AddPolicy("MyPolicy", options =>
@@ -64,6 +67,7 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = false
     };
 });
+
 
 var app = builder.Build();
 
